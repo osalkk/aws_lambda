@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+<div><button id="list">List Instances</button></div>
+<div>
+<table class="table" style="width:100%" border="1" id="dataTable">
+  <thead>
+	  <tr>
+		  <th>Instance Id</th>
+		  <th>State</th>
+		  <th>Take AMI</th>                                          
+	  </tr>
+  </thead>   
+  <tbody>
+	
+  </tbody>
+</table>  
+</div>				    
+					
+<!-- start: JavaScript-->
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.28.min.js"></script>
+
+<!-- Lambda Invoke-->
+<script type="text/javascript">
+	var lambda = new AWS.Lambda({
+		region : "eu-west-1",
+		accessKeyId: "key",
+		secretAccessKey: "secret"
+	});
+	var button = document.getElementById('list');
+	button.addEventListener('click', function () {
+		lambda.invoke({ 
+		FunctionName: "demo",
+		InvocationType: 'RequestResponse'
+		},function(err,data){
+			if (!err) {
+				var response = JSON.parse(data.Payload)
+				console.log(response);
+				    for (var i in response) {
+						var row = $("<tr><td>" + i + "</td><td>" + response[i] + "</td><td><button id='"+i+"' onclick='myFunction(this.id)'>Take AMI</button></td></tr>");
+					    $("#dataTable").append(row); 
+				    }
+			} 
+			else {
+				console.log(err)
+			}
+
+		});
+
+	});
+	function myFunction(id) {
+		var instance_id = JSON.stringify({ "id": id });	
+	    lambda.invoke({ 
+			FunctionName: "demo",
+			Payload: instance_id,
+			InvocationType: 'RequestResponse'
+		},function(err,data){
+			if (!err) {
+				
+			} 
+			else {
+				console.log(err)
+			}
+
+		});
+	}
+</script>
+<script>
+
+		
+</script>
+	<!-- end: JavaScript-->
+	
+</body>
+</html>
